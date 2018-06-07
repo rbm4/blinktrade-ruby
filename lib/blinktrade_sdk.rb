@@ -2,6 +2,7 @@
 require "blinktrade_sdk/version"
 require "blinktrade_sdk/message"
 require "blinktrade_sdk/web_socket"
+require 'openssl'
 
 if RUBY_VERSION =~ /1.9/
   Encoding.default_external = Encoding::UTF_8
@@ -9,6 +10,48 @@ if RUBY_VERSION =~ /1.9/
 end
 
 module BlinktradeSdk
+  def initialize(options={})
+    @options = options
+
+    env = 'prod'
+    if env == 'prod'
+      @blinktrade_api_url = "https://api.blinktrade.com"
+    else
+      @blinktrade_api_url = "https://api.testnet.blinktrade.com"
+    end
+  end
+
+  def options=(options)
+    @options = options
+  end
+
+  def send
+    send_msg(@options)
+  end
+
+  def send_msg(msg)
+    key = ENV['BLINKTRADE_API_KEY']
+    secret = ENV['BLINKTRADE_SECRET']
+
+    nonce = (Time.now.to_f * 1000.0).to_i.to_i.to_s
+
+    digest = OpenSSL::Digest.new('sha256')
+    signature = OpenSSL::HMAC.hexdigest(digest, secret, nonce)
+
+    headers = {
+      'user-agent' => 'blinktrade_tools/0.1',
+      'Content-Type' => 'application/json',
+      'APIKey' => key,
+      'Nonce' => nonce,
+      'Signature' => signature
+    }
+
+    url = "#{@blinktrade_api_url}/tapi/#{BLINKTRADE_API_VERSION}/message"
+
+    http_client = BlinktradeSdk::HttpClient.new
+    return http_client.doPost(url, headers, msg)
+  end
+  
   class Client
     def request_balance(reqId=nil)
       reqId = (Time.now.to_f * 1000.0).to_i.to_i

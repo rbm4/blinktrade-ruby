@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{This gem is a SDK to blinktrade API.}
   spec.description   = %q{With this gem you will be able to make requests to blinktrade API and trade with your own account.}
-  spec.homepage      = "https://github.com/maurcarvalho/blinktrade-ruby-sdk"
+  spec.homepage      = "https://github.com/rbm4/blinktrade-ruby/"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
